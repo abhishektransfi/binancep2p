@@ -12,36 +12,43 @@ app.use(
 );
 app.use(express.json());
 
-app.post("/api/p2p-data", async (req, res) => {
-  const { fiat } = req.body;
-
+app.post('/api/p2p-data', async (req, res) => {
+  const { fiat, page, rows } = req.body;
+  
   try {
+    console.log("Request received for:", { fiat, page, rows });
+    
     const response = await axios.post(
-      "https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search",
+      'https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search',
       {
-        fiat: fiat, // Use the currency from request
-        asset: "USDT",
+        fiat: fiat || 'INR',
+        asset: "USDT", 
         tradeType: "BUY",
         payType: "ALL",
-        page: 1,
-        rows: 10,
+        page: page,
+        rows: rows
       },
       {
         headers: {
-          "Content-Type": "application/json",
-        },
+          'Content-Type': 'application/json'
+        }
       }
     );
 
-    const sortedData = [...response.data.data].sort(
-      (a, b) => Number(a.adv.price) - Number(b.adv.price)
+    const sortedData = response.data.data.sort((a, b) => 
+      Number(a.adv.price) - Number(b.adv.price)
     );
-
+    
+    console.log("Records being sent:", sortedData.length);
+    
     res.json({
-      ...response.data,
+      code: "000000",
+      message: null,
       data: sortedData,
+      total: response.data.total
     });
   } catch (error) {
+    console.error("Error:", error);
     res.status(500).json({ error: error.message });
   }
 });
