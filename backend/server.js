@@ -5,7 +5,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3001","http://localhost:3000"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
@@ -13,7 +13,7 @@ app.use(
 app.use(express.json());
 
 app.post('/api/p2p-data', async (req, res) => {
-  const { fiat, page, rows } = req.body;
+  const { fiat, page, rows, tradeType } = req.body;
   
   try {
     console.log("Request received for:", { fiat, page, rows });
@@ -23,7 +23,7 @@ app.post('/api/p2p-data', async (req, res) => {
       {
         fiat: fiat || 'INR',
         asset: "USDT", 
-        tradeType: "BUY",
+        tradeType: tradeType,
         payType: "ALL",
         page: page,
         rows: rows
